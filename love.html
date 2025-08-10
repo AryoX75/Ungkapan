@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Untukmu — ARYO</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --accent: #ff5b95;
+  --text: #4b2332;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+
+/* Background gradasi animasi + bokeh */
+body{
+  font-family:"Poppins",sans-serif;
+  overflow:hidden;
+  color:var(--text);
+  background: radial-gradient(circle at 20% 20%, #ffcad4, #ffb3c6, #ff8fab);
+  animation: gradientShift 20s infinite alternate;
+  position: relative;
+}
+@keyframes gradientShift {
+  0% { background: radial-gradient(circle at 20% 20%, #ffcad4, #ffb3c6, #ff8fab); }
+  50% { background: radial-gradient(circle at 80% 80%, #ffcfd2, #fbb1bd, #f08080); }
+  100% { background: radial-gradient(circle at 50% 50%, #ffe5ec, #ffc2d1, #ffb3c6); }
+}
+
+/* Bokeh overlay */
+.bokeh {
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  overflow:hidden;
+  z-index:0;
+}
+.bokeh span {
+  position:absolute;
+  border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  animation: moveBokeh 25s linear infinite;
+}
+@keyframes moveBokeh {
+  0% { transform:translateY(0) scale(1); }
+  100% { transform:translateY(-120vh) scale(0.3); }
+}
+
+/* Panel teks puisi */
+.panel{
+  position: relative;
+  z-index: 2;
+  text-align:center;
+  padding:1.5rem;
+  animation: fadeScaleIn 1.2s ease forwards;
+  opacity:0;
+  transform: scale(0.8);
+}
+@keyframes fadeScaleIn {
+  to { opacity:1; transform: scale(1); }
+}
+.title{
+  font-family:"Dancing Script",cursive;
+  font-size:clamp(1.6rem,3.6vw,2.6rem);
+  color:#7d163f;
+  margin-bottom:1rem;
+}
+.poem{
+  font-size:1.05rem;
+  line-height:1.68;
+  white-space:pre-wrap;
+  min-height:160px;
+}
+
+/* Pesan rahasia */
+.secret {
+  margin-top:15px;
+}
+.secret button {
+  padding:8px 15px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ff8ab3,#ff6b9a);
+  color:#fff;
+  cursor:pointer;
+}
+.secret-msg {
+  display:none;
+  margin-top:10px;
+  background:rgba(255,255,255,0.85);
+  padding:10px;
+  border-radius:10px;
+  font-style:italic;
+}
+
+/* Hati jatuh */
+.heart{
+  position:absolute;
+  width:22px;
+  height:22px;
+  transform-origin:center;
+}
+.heart:before, .heart:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:50%;
+  height:80%;
+  background:linear-gradient(180deg,#ff9bb9,#ff6b9a);
+  border-radius:50% 50% 0 0;
+}
+.heart:before{transform:translateX(-50%) rotate(-45deg)}
+.heart:after{transform:translateX(-50%) rotate(45deg)}
+@keyframes floatUp2{
+  0%{transform: translateY(0) rotate(0deg); opacity:.98}
+  100%{transform: translateY(-140vh) rotate(540deg); opacity:0}
+}
+
+/* Bunga sakura */
+.flower {
+  position:absolute;
+  background: pink;
+  border-radius:50%;
+  opacity:0.8;
+  pointer-events:none;
+  animation: fallFlower linear forwards;
+}
+@keyframes fallFlower {
+  to { transform: translateY(110vh) rotate(360deg); opacity:0; }
+}
+
+/* Cursor trail hati */
+.cursor-heart {
+  position: fixed;
+  font-size:14px;
+  pointer-events:none;
+  animation: fadeTrail 1s forwards;
+}
+@keyframes fadeTrail {
+  to { transform:translateY(-20px); opacity:0; }
+}
+</style>
+</head>
+<body>
+
+<audio id="bg-music" autoplay loop>
+  <source src="musik.mp3" type="audio/mpeg">
+</audio>
+
+<div class="bokeh" id="bokeh"></div>
+
+<!-- Surat -->
+<div class="panel">
+  <h1 class="title">Untukmu, <span id="display-name">Sayang</span> 💕</h1>
+  <div id="poem" class="poem"></div>
+  <div class="secret">
+    <button id="reveal-btn">Pesan Rahasia 💌</button>
+    <div class="secret-msg" id="secret-msg">Kamu adalah alasan aku percaya bahwa cinta itu nyata. 💖</div>
+  </div>
+</div>
+
+<script>
+// Nama
+const name = localStorage.getItem('nama_aryo') || 'Sayang';
+document.getElementById('display-name').textContent = name;
+
+// Puisi
+const rawPoem = `Hai ${name},
+
+Entah sejak kapan, aku mulai menunggu setiap pesan darimu.
+Aku mulai tersenyum hanya karena mengingat caramu berbicara.
+Mungkin ini terdengar sederhana,
+tapi hatiku bergetar setiap kali kamu ada di dekatku.
+
+Aku suka cara matamu bercerita tanpa kata.
+Aku suka bagaimana tawamu bisa menghapus semua lelahku.
+Dan aku suka... perasaan ini — perasaan yang selalu membawaku kembali padamu.
+
+Kalau saja aku boleh jujur,
+aku ingin kita berjalan lebih jauh,
+bukan hanya sebagai teman,
+tapi sebagai dua hati yang saling menemukan rumahnya.`;
+
+async function typePoem(text){
+  const poemEl = document.getElementById('poem');
+  poemEl.textContent = '';
+  for(let i=0;i<text.length;i++){
+    poemEl.textContent += text[i];
+    let delay = 20 + Math.random()*50;
+    if (text[i] === '\n') delay += 200;
+    if (/[.,!?]/.test(text[i])) delay += 80;
+    await new Promise(r=>setTimeout(r, delay));
+  }
+}
+setTimeout(()=>typePoem(rawPoem), 500);
+
+// Hati jatuh
+function spawnHeart(){
+  const h = document.createElement('div');
+  h.className = 'heart';
+  const size = Math.random()*40+20;
+  h.style.width = `${size}px`;
+  h.style.height = `${size}px`;
+  h.style.left = `${Math.random()*100}%`;
+  h.style.bottom = `-6%`;
+  const duration = Math.random()*9000+7000;
+  h.style.animation = `floatUp2 ${duration}ms linear forwards`;
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(), duration);
+}
+setInterval(spawnHeart, 500);
+
+// Sakura flowers
+function spawnFlower(){
+  const f = document.createElement('div');
+  f.className = 'flower';
+  const size = Math.random()*10+8;
+  f.style.width = `${size}px`;
+  f.style.height = `${size}px`;
+  f.style.left = `${Math.random()*100}%`;
+  f.style.top = `-5%`;
+  const duration = Math.random()*8000+6000;
+  f.style.animationDuration = duration+'ms';
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(), duration);
+}
+setInterval(spawnFlower, 700);
+
+// Cursor trail hearts
+document.addEventListener('mousemove', e=>{
+  const trail = document.createElement('div');
+  trail.className = 'cursor-heart';
+  trail.style.left = e.pageX+'px';
+  trail.style.top = e.pageY+'px';
+  trail.textContent = '💖';
+  document.body.appendChild(trail);
+  setTimeout(()=>trail.remove(), 1000);
+});
+
+// Pesan rahasia
+document.getElementById('reveal-btn').onclick = ()=>{
+  document.getElementById('secret-msg').style.display='block';
+};
+
+// Bokeh creation
+const bokehContainer = document.getElementById('bokeh');
+for(let i=0;i<20;i++){
+  const b = document.createElement('span');
+  const size = Math.random()*60+20;
+  b.style.width = size+'px';
+  b.style.height = size+'px';
+  b.style.left = Math.random()*100+'%';
+  b.style.top = '100%';
+  b.style.animationDuration = (Math.random()*15+10)+'s';
+  bokehContainer.appendChild(b);
+}
+
+// Musik autoplay fix
+const bgMusic = document.getElementById('bg-music');
+document.body.addEventListener('click', ()=>{
+  if(bgMusic.paused) bgMusic.play();
+});
+</script>
+</body>
+</html>

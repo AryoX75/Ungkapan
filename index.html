@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Website Romantis — ARYO</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1: #ffd6e0;
+      --bg2: #ffe8d6;
+      --bg3: #ffd9ec;
+      --accent: #ff6b9a;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:"Poppins",sans-serif;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+      overflow:hidden;
+    }
+    /* Hearts background */
+    .hearts {
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:0;
+    }
+    /* Page content */
+    .container{
+      position:relative;
+      z-index:5;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:3rem;
+    }
+    .card{
+      background:rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+      border-radius:18px;
+      padding:2.25rem;
+      max-width:720px;
+      width:100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align:center;
+    }
+    h1{
+      font-family: "Dancing Script", cursive;
+      font-size: clamp(1.8rem, 3.6vw, 3rem);
+      color:#7a1140;
+    }
+    p.lead{
+      color:#5a2b3e;
+      margin-bottom:1.25rem;
+    }
+    .form-row{
+      display:flex;
+      gap:.75rem;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    input{
+      padding:.85rem 1rem;
+      border-radius:999px;
+      border:1px solid rgba(122,17,64,0.12);
+      min-width:220px;
+      max-width:420px;
+      font-size:1rem;
+      outline:none;
+      transition:box-shadow .25s ease, transform .15s ease;
+      box-shadow: 0 4px 14px rgba(122,17,64,0.06);
+    }
+    input:focus{transform:translateY(-2px); box-shadow:0 10px 30px rgba(122,17,64,0.08)}
+    button{
+      background:linear-gradient(90deg,#ff8ab3,#ff6b9a);
+      border:none;
+      color:white;
+      padding:.82rem 1.05rem;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 8px 20px rgba(255,107,154,0.18);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+    button:hover{transform:translateY(-4px) scale(1.02);}
+    .small{
+      margin-top:.9rem;
+      color:rgba(90,43,62,0.7);
+      font-size:.92rem;
+    }
+    .heart{
+      position:absolute;
+      width:20px;
+      height:20px;
+      transform-origin:center;
+    }
+    .heart:before, .heart:after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      width:50%;
+      height:80%;
+      background:linear-gradient(180deg,#ff9bb9,#ff6b9a);
+      border-radius:50% 50% 0 0;
+    }
+    .heart:before{transform:translateX(-50%) rotate(-45deg)}
+    .heart:after{transform:translateX(-50%) rotate(45deg)}
+    @keyframes floatUp{
+      0%{transform: translateY(0) rotate(0deg); opacity:1}
+      100%{transform: translateY(-120vh) rotate(360deg); opacity:0}
+    }
+    /* Kredit pembuat */
+    .credit {
+      position: fixed;
+      bottom: 8px;
+      right: 12px;
+      font-size: 0.8rem;
+      color: rgba(90,43,62,0.4);
+      font-style: italic;
+      z-index: 10;
+    }
+    @media (max-width:520px){
+      .card{padding:1.25rem}
+      .form-row{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div id="audio-holder"></div>
+  <div class="hearts" id="hearts-bg"></div>
+
+  <div class="container">
+    <div class="card">
+      <h1>Hai, boleh tau nama kamu? ❤️</h1>
+      <p class="lead">Agar aku bisa menulis sesuatu manis khusus untukmu ✨</p>
+      <div class="form-row">
+        <input id="nama" type="text" placeholder="Ketik namamu di sini..." autocomplete="off" />
+        <button id="btn">Lanjut</button>
+      </div>
+      <div class="small">Nama akan disimpan secara lokal agar personalisasi tetap terasa.</div>
+    </div>
+  </div>
+
+  <!-- Kredit sederhana -->
+  <div class="credit">© 2025 by ARYO</div>
+
+  <script>
+    const heartsBg = document.getElementById('hearts-bg');
+    function spawnHeart() {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      const size = Math.random()*24+12;
+      h.style.width = `${size}px`;
+      h.style.height = `${size}px`;
+      h.style.left = `${Math.random()*100}%`;
+      h.style.bottom = `-8%`;
+      const duration = Math.random()*8000+6000;
+      h.style.animation = `floatUp ${duration}ms linear forwards`;
+      heartsBg.appendChild(h);
+      setTimeout(()=> h.remove(), duration);
+    }
+    setInterval(()=> spawnHeart(), 300);
+
+    const btn = document.getElementById('btn');
+    const input = document.getElementById('nama');
+    btn.addEventListener('click', ()=>{
+      const val = input.value.trim();
+      if(!val){ alert('Tolong ketik namamu dulu ya 💌'); return; }
+      localStorage.setItem('nama_aryo', val);
+      location.href = 'love.html';
+    });
+    input.addEventListener('keydown', e=>{
+      if(e.key === 'Enter') btn.click();
+    });
+  </script>
+</body>
+</html>
